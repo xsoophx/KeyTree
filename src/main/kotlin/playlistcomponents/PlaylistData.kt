@@ -1,11 +1,11 @@
-package playlistComponents
+package playlistcomponents
 
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.lang.Exception
 import java.nio.file.Path
 
-class InputPlaylistData(private val path: Path) {
+class PlaylistData(private val path: Path) {
     companion object{
         val logger = LoggerFactory.getLogger(this::class.java)
     }
