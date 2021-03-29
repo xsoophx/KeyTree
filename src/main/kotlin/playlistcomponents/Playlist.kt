@@ -11,11 +11,17 @@ class Playlist(private val path: Path) {
 
     private lateinit var categories: Set<String>
 
+    private lateinit var songs: List<Song>
+
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(this::class.java)
+        val logger: Logger = LoggerFactory.getLogger(Playlist::class.java)
     }
 
-    fun checkIfEmpty() {
+    init {
+        checkIfEmpty()
+    }
+
+    private fun checkIfEmpty() {
         val playlistData = readPlaylistData()
         when (playlistData.isNotEmpty()) {
             true -> createPlaylist()
@@ -26,7 +32,7 @@ class Playlist(private val path: Path) {
     private fun createPlaylist() {
         val playlistData = readPlaylistData()
         categories = extractSongCategories(playlistData.first())
-        val songs = playlistData.toList().mapIndexed { index, song ->
+        songs = playlistData.toList().mapIndexedNotNull { index, song ->
             song.toSong().takeIf { index != 0 }
         }
     }
