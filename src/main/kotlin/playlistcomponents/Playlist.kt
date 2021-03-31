@@ -7,48 +7,33 @@ import java.nio.file.Path
 
 const val SEPARATOR = '\t'
 
-class Playlist(private val path: Path) {
-
-    private lateinit var categories: Set<String>
-
-    private lateinit var songs: List<Song>
-
+class Playlist(path: Path) {
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(Playlist::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(Playlist::class.java)
+
+        private fun readPlaylistData(path: Path): List<String> {
+            return File(path.toUri()).useLines(charset = Charsets.UTF_8, Sequence<String>::toList)
+        }
     }
+
+    private val categories: Set<String>
+
+    private val songs: List<Song>
 
     init {
-        checkIfEmpty()
+        val lines = readPlaylistData(path)
+
+        categories = lines.first().splitToSequence(SEPARATOR).toSet()
+        logger.info("Loaded ${categories.size} categories.")
+
+        songs = lines.asSequence()
+            .drop(1)
+            .map(this::makeSong)
+            .toList()
+        logger.info("Loaded ${songs.size} songs.")
     }
 
-    private fun checkIfEmpty() {
-        val playlistData = readPlaylistData()
-        when (playlistData.isNotEmpty()) {
-            true -> createPlaylist()
-            false -> logger.error("Playlist is empty!")
-        }
-    }
+    private fun makeSong(line: String): Song = Song(categories.zip(line.split(SEPARATOR)).toMap())
 
-    private fun createPlaylist() {
-        val playlistData = readPlaylistData()
-        categories = extractSongCategories(playlistData.first())
-        songs = playlistData.toList().mapIndexedNotNull { index, song ->
-            song.toSong().takeIf { index != 0 }
-        }
-    }
-
-    private fun String.toSong(): Song = Song(categories.zip(split(SEPARATOR)).toMap())
-
-    private fun extractSongCategories(categoriesInFile: String) = categoriesInFile.split(SEPARATOR).toSet()
-
-
-    private fun readPlaylistData(): Set<String> {
-        return try {
-            File(path.toUri()).useLines { lines -> lines.map { it } }.toSet()
-        } catch (e: Exception) {
-            logger.error("Could not read file.", e)
-            emptySet()
-        }
-
-    }
+    fun isEmpty(): Boolean = categories.isEmpty()
 }
