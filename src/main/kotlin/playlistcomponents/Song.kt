@@ -1,5 +1,5 @@
 package playlistcomponents
 
-class Song(private val categories: Map<String, String>) {
+class Song(val categories: Map<String, String>) {
 
 }

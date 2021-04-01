@@ -12,18 +12,18 @@ class Playlist(path: Path) {
         private val logger: Logger = LoggerFactory.getLogger(Playlist::class.java)
 
         private fun readPlaylistData(path: Path): List<String> {
-            return File(path.toUri()).useLines(charset = Charsets.UTF_8, Sequence<String>::toList)
+            return File(path.toUri()).useLines(charset = Charsets.UTF_16, Sequence<String>::toList)
         }
     }
 
-    private val categories: Set<String>
+    val categories: Set<String>
 
-    private val songs: List<Song>
+    val songs: List<Song>
 
     init {
         val lines = readPlaylistData(path)
 
-        categories = lines.first().splitToSequence(SEPARATOR).toSet()
+        categories = lines.first().splitToSequence(SEPARATOR).map { it.trim() }.toSet()
         logger.info("Loaded ${categories.size} categories.")
 
         songs = lines.asSequence()
@@ -33,7 +33,10 @@ class Playlist(path: Path) {
         logger.info("Loaded ${songs.size} songs.")
     }
 
-    private fun makeSong(line: String): Song = Song(categories.zip(line.split(SEPARATOR)).toMap())
+    private fun makeSong(line: String): Song =
+        Song(
+            categories.zip(line.split(SEPARATOR).map { it.trim() }).toMap()
+        )
 
     fun isEmpty(): Boolean = categories.isEmpty()
 }

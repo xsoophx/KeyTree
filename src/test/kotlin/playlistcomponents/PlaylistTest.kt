@@ -26,6 +26,20 @@ class PlaylistTest {
             Path.of("../born.txt"),
             Files.createTempFile("", ".conf")
         )
+
+        val categories = setOf(
+            "#",
+            "Bild",
+            "Trackname",
+            "Interpret",
+            "Album",
+            "Genre",
+            "BPM",
+            "Wertung",
+            "Dauer",
+            "Tonart",
+            "Datum Hinzufügung"
+        )
     }
 
 
@@ -54,5 +68,34 @@ class PlaylistTest {
         assertThrows<FileNotFoundException> {
             Playlist(testPath).apply { assertTrue(isEmpty()) }
         }
+    }
+
+    @Test
+    fun `reading categories correctly`() {
+        val playlist = Playlist(Path.of("src/test/resources/testPlaylist.txt"))
+        assertThat(playlist.categories).isEqualTo(categories)
+    }
+
+    @Test
+    fun `creating songs correctly`() {
+        val playlist = Playlist(Path.of("src/test/resources/testPlaylist.txt"))
+        val firstSong = categories.zip(
+            listOf(
+                "1",
+                "",
+                "I Can't Get Enough Of Your Love",
+                "The Funk Brothers, Sabrina Belmo",
+                "I Can't Get Enough Of Your Love",
+                "Techno (Peak Time / Driving)",
+                "130,00",
+                "",
+                "06:48",
+                "Gm",
+                "2021-03-28"
+            )
+        ).toMap()
+
+        assertThat(playlist.songs.first().categories).isEqualTo(firstSong)
+
     }
 }

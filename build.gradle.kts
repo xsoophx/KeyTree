@@ -12,7 +12,7 @@ repositories {
 }
 
 application {
-    mainClass.set("src.main.kotlin.Main.kt")
+    mainClass.set("MainKt")
 }
 
 object Version {
